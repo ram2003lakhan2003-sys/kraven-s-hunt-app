@@ -5,11 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Users, ArrowLeft } from "lucide-react";
+import { register } from "@/lib/auth";
+import { useToast } from "@/hooks/use-toast";
 
 const TeamRegistration = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     teamName: "",
+    email: "",
+    password: "",
     member1: "",
     member2: "",
     member3: "",
@@ -19,7 +24,18 @@ const TeamRegistration = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Store team data and redirect
+    const result = register(formData.email, formData.password, "team", {
+      teamName: formData.teamName,
+      member1: formData.member1,
+      member2: formData.member2,
+      member3: formData.member3,
+      member4: formData.member4,
+      contact: formData.contact,
+    });
+    if (!result.success) {
+      toast({ title: "Registration Failed", description: result.error, variant: "destructive" });
+      return;
+    }
     localStorage.setItem("huntTeam", JSON.stringify(formData));
     navigate("/dashboard");
   };
@@ -61,6 +77,30 @@ const TeamRegistration = () => {
             value={formData.teamName}
             onChange={(e) => handleChange("teamName", e.target.value)}
             placeholder="Enter your pack name"
+            required
+            className="bg-muted/50 border-border text-foreground placeholder:text-muted-foreground/50 focus:border-gold/50 focus:ring-gold/20"
+          />
+        </div>
+
+        {/* Email & Password */}
+        <div className="space-y-2">
+          <Label className="text-sm text-gold/80 font-body tracking-wider uppercase">Team Email Address</Label>
+          <Input
+            value={formData.email}
+            onChange={(e) => handleChange("email", e.target.value)}
+            placeholder="team@kravenshunt.com"
+            type="email"
+            required
+            className="bg-muted/50 border-border text-foreground placeholder:text-muted-foreground/50 focus:border-gold/50 focus:ring-gold/20"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label className="text-sm text-gold/80 font-body tracking-wider uppercase">Password</Label>
+          <Input
+            value={formData.password}
+            onChange={(e) => handleChange("password", e.target.value)}
+            placeholder="••••••••"
+            type="password"
             required
             className="bg-muted/50 border-border text-foreground placeholder:text-muted-foreground/50 focus:border-gold/50 focus:ring-gold/20"
           />
@@ -110,7 +150,7 @@ const TeamRegistration = () => {
 
         <div className="pt-4">
           <Button type="submit" variant="hunt" size="xl" className="w-full">
-            Register & Begin
+            Register and Begin
           </Button>
         </div>
       </motion.form>
